@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美國 AI 資本流動性儀表板 v2</title>
+<style>
+:root { --kimi-font-sans: -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --kimi-color-text-primary:#1a1a1a; --kimi-color-text-secondary:#555; --kimi-color-text-tertiary:#999;
+  --kimi-color-border:#e3e3e3; --kimi-color-fill-tertiary:#eee;
+  --kimi-color-positive:#0f9d6c; --kimi-color-warning:#d97706; --kimi-color-danger:#dc2626; }
+@media (prefers-color-scheme: dark) {
+  :root { --kimi-color-text-primary:#eee; --kimi-color-text-secondary:#bbb; --kimi-color-text-tertiary:#888;
+    --kimi-color-border:#3a3a3a; --kimi-color-fill-tertiary:#333; }
+  body { background:#161616; } input { color-scheme: dark; }
+}
+* { box-sizing:border-box; }
+body { font-family: var(--kimi-font-sans); font-size:14px; color: var(--kimi-color-text-primary); margin:0; padding:20px; background:#fafafa; }
+.wrap { max-width: 960px; margin: 0 auto; }
+@media (max-width:720px){ #overview { grid-template-columns:1fr !important; } }
+input { font-family: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="db" style="font-family: var(--kimi-font-sans); font-size:14px; color: var(--kimi-color-text-primary);">
+<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+  <div>
+    <div style="font-size:17px; font-weight:500;">美國 AI 資本流動性儀表板 v2</div>
+    <div style="font-size:12px; color: var(--kimi-color-text-tertiary);">12 項指標 · 7 層級 · 台灣外資流向 · 總量與強弱綜合判讀（數值皆可編輯，狀態即時重算）</div>
+  </div>
+  <div id="verdict" style="padding:6px 12px; border-radius:6px; font-size:13px; font-weight:500;"></div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;" id="overview">
+  <div style="border:1px solid var(--kimi-color-border); border-radius:12px; padding:12px;">
+    <div style="font-size:13px; font-weight:500; margin-bottom:8px;">總指標 ①｜美國 AI 資本體量（年度運行率）</div>
+    <div style="display:grid; grid-template-columns:1fr 90px; gap:6px 8px; font-size:12px; align-items:center;">
+      <span style="color:var(--kimi-color-text-secondary);">Hyperscaler CapEx 2026 指引</span><input id="m_capex" type="number" value="7250" step="50" style="padding:4px 6px; border-radius:6px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; text-align:right;">
+      <span style="color:var(--kimi-color-text-secondary);">美國 AI VC（2025 實績年化）</span><input id="m_vc" type="number" value="1940" step="10" style="padding:4px 6px; border-radius:6px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; text-align:right;">
+      <span style="color:var(--kimi-color-text-secondary);">科技巨頭債券融資（估）</span><input id="m_debt" type="number" value="1080" step="10" style="padding:4px 6px; border-radius:6px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; text-align:right;">
+      <span style="color:var(--kimi-color-text-secondary);">美國名目 GDP（兆美元）</span><input id="m_gdp" type="number" value="31.5" step="0.1" style="padding:4px 6px; border-radius:6px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; text-align:right;">
+    </div>
+    <div style="margin-top:10px; font-size:20px; font-weight:500; font-variant-numeric:tabular-nums;" id="massOut"></div>
+    <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-top:2px;" id="massSub"></div>
+  </div>
+  <div style="border:1px solid var(--kimi-color-border); border-radius:12px; padding:12px;">
+    <div style="font-size:13px; font-weight:500; margin-bottom:8px;">總指標 ②｜AI 流動性強弱分數（自動）</div>
+    <div style="display:flex; align-items:baseline; gap:6px;">
+      <span id="scoreNum" style="font-size:30px; font-weight:500; font-variant-numeric:tabular-nums;">—</span>
+      <span style="font-size:12px; color:var(--kimi-color-text-tertiary);">/ 100（12 項指標紅燈 -8.3、黃燈 -4.2）</span>
+    </div>
+    <div style="height:8px; border-radius:4px; background:var(--kimi-color-fill-tertiary); margin:10px 0 6px; overflow:hidden;">
+      <div id="scoreBar" style="height:100%; width:0%; border-radius:4px; transition:width .3s;"></div>
+    </div>
+    <div id="scoreLbl" style="font-size:13px; font-weight:500;"></div>
+    <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-top:6px;">分層：<span id="scoreLayer"></span></div>
+  </div>
+</div>
+
+<div style="border:1px solid var(--kimi-color-border); border-radius:12px; padding:12px; margin-bottom:14px;">
+  <div style="font-size:13px; font-weight:500; margin-bottom:4px;">台灣 AI 指標股｜外資買賣超（張，+ 加碼 / − 撤逃）</div>
+  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/09/11（證交所官方三大法人日報自動更新；10/30/60 日外資買賣超，單位：張，60 日窗已完整無缺漏）</div>
+  <div id="twrows"></div>
+</div>
+
+<div id="legend" style="display:flex; gap:12px; font-size:12px; color: var(--kimi-color-text-tertiary); margin-bottom:12px;">
+  <span><span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:var(--kimi-color-positive);margin-right:4px;"></span>正常</span>
+  <span><span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:var(--kimi-color-warning);margin-right:4px;"></span>關注</span>
+  <span><span style="display:inline-block;width:8px;height:8px;border-radius:4px;background:var(--kimi-color-danger);margin-right:4px;"></span>紅燈</span>
+</div>
+
+<div id="rows"></div>
+
+<div style="margin-top:16px; border-top:1px solid var(--kimi-color-border); padding-top:12px;">
+  <div style="font-size:13px; font-weight:500; margin-bottom:8px;">層級燈號</div>
+  <div id="layers" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+  <div id="rule" style="font-size:12px; color: var(--kimi-color-text-tertiary); margin-top:10px; line-height:20px;">
+    判讀規則：「來源、輸血、造血、落地」四個關鍵層級中 ≥3 層亮紅燈，判定為 AI 流動性收縮；單一指標不作結論。
+  </div>
+  <div style="margin-top:12px;"><button id="reset" style="padding:6px 12px; border-radius:8px; border:1px solid var(--kimi-color-border); background:transparent; color: var(--kimi-color-text-primary); font-size:13px; cursor:pointer;">重置為基準值</button></div>
+</div>
+</div>
+
+<script>
+const IND = [
+ {id:'vc',   name:'美國 AI VC 季融資額季增率', layer:'來源', freq:'季', src:'PitchBook-NVCA', base:'基準 2025：1,940 億美元/年', v:5,   red:-5,  yellow:0,  dir:'below', unit:'%', note:'紅：季增 ≤ −5%'},
+ {id:'llm',  name:'頭部模型公司單季募資', layer:'來源', freq:'月', src:'官方公告 + Crunchbase', base:'OpenAI/Anthropic/xAI 合計', v:300, red:100, yellow:200, dir:'below', unit:'億美元', note:'紅：單季 < 100 億'},
+ {id:'capex',name:'Hyperscaler CapEx 指引同比', layer:'運用', freq:'季', src:'10-Q/10-K', base:'2026 指引 ≈ 7,250 億（+77%）', v:35, red:20, yellow:30, dir:'below', unit:'%', note:'紅：增速 < +20%'},
+ {id:'ocf',  name:'Capex / OCF 比率', layer:'造血', freq:'季', src:'SEC / FRED', base:'歷史高位區', v:75, red:80, yellow:75, dir:'above', unit:'%', note:'紅：升破 80% 且續升'},
+ {id:'fcf',  name:'負自由現金流巨頭家數', layer:'造血', freq:'季', src:'10-Q', base:'目前均為正', v:0, red:1, yellow:1, dir:'above', unit:'家', note:'紅：任一巨頭 FCF 轉負'},
+ {id:'spread',name:'科技巨頭債利差 vs 投資級基準', layer:'輸血', freq:'週', src:'Bloomberg / FRED', base:'正常貼水區間', v:15, red:50, yellow:25, dir:'above', unit:'bp', note:'紅：> 50bp 且 CDS 同步走升'},
+ {id:'offbs',name:'表外負債年增率', layer:'輸血', freq:'季', src:'10-K 附註', base:'租賃/採購承諾', v:45, red:50, yellow:30, dir:'above', unit:'%', note:'紅：年增 > 50%'},
+ {id:'gpu',  name:'GPU 租賃價格月變動', layer:'落地', freq:'週', src:'現貨報價', base:'高階卡供給緊', v:-2, red:-10, yellow:-5, dir:'below', unit:'%', note:'紅：連月下跌且 < −10%'},
+ {id:'inv',  name:'伺服器 ODM 庫存天數變動', layer:'落地', freq:'季', src:'財報', base:'Backlog 仍長', v:3, red:15, yellow:8, dir:'above', unit:'天', note:'紅：急升 +15 天且 Backlog 縮'},
+ {id:'dc',   name:'資料中心開工金額季變動', layer:'落地', freq:'季', src:'CBRE / Dgtl Infra', base:'電力供給為瓶頸', v:6, red:0, yellow:2, dir:'below', unit:'%', note:'紅：停滯 < 0%（CapEx 升但開工停）'},
+ {id:'exit', name:'AI IPO/M&A 退出季金額', layer:'循環', freq:'季', src:'PitchBook Exit', base:'2025H1 僅 11 家 IPO', v:85, red:30, yellow:55, dir:'below', unit:'億美元', note:'紅：連續萎縮 < 30 億'},
+ {id:'liq',  name:'Fed 淨流動性 4 週變動', layer:'宏觀', freq:'週', src:'FRED', base:'資產負債表 −TGA −ON RRP', v:1.2, red:-2, yellow:-0.5, dir:'below', unit:'%', note:'紅：連續收縮 < −2%'}
+];
+const LAYERS = ['來源','運用','造血','輸血','落地','循環','宏觀'];
+const KEY = ['來源','輸血','造血','落地'];
+const START = IND.map(i=>i.v);
+const TW = [
+ {n:'台積電 2330', d10:-1008, d30:3191, d60:-165983, warn:'官方證交所資料 2026/09/11 更新，60日窗完整'},
+ {n:'聯發科 2454', d10:2934, d30:14640, d60:4358, warn:'官方證交所資料 2026/09/11 更新，60日窗完整'},
+ {n:'台達電 2308', d10:-15676, d30:-22717, d60:-59185, warn:'官方證交所資料 2026/09/11 更新，60日窗完整'}
+];
+function status(i){
+  const v = parseFloat(document.getElementById('v_'+i.id).value);
+  if (isNaN(v)) return 1;
+  if (i.dir==='below') return v<=i.red?2:(v<=i.yellow?1:0);
+  return v>=i.red?2:(v>=i.yellow?1:0);
+}
+const C = ['var(--kimi-color-positive)','var(--kimi-color-warning)','var(--kimi-color-danger)'];
+const LBL = ['正常','關注','紅燈'];
+const TINT = [ 'color-mix(in srgb, var(--kimi-color-positive) 12%, transparent)', 'color-mix(in srgb, var(--kimi-color-warning) 14%, transparent)', 'color-mix(in srgb, var(--kimi-color-danger) 12%, transparent)'];
+function renderTW(){
+  const box = document.getElementById('twrows');
+  box.innerHTML='';
+  const head = document.createElement('div');
+  head.style.cssText='display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr; gap:8px; font-size:12px; color:var(--kimi-color-text-tertiary); padding:4px;';
+  head.innerHTML='<span>個股</span><span>10日</span><span>30日</span><span>60日（部分可得）</span>';
+  box.appendChild(head);
+  TW.forEach((s,si)=>{
+    const g = document.createElement('div');
+    g.style.cssText='display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr; gap:8px; align-items:center; padding:6px 4px; border-top:1px solid var(--kimi-color-border);';
+    let cells = '<div style="font-size:14px; font-weight:500;">'+s.n+'<div style="font-size:11px; font-weight:400; color:var(--kimi-color-text-tertiary);">'+s.warn+'</div></div>';
+    ['d10','d30','d60'].forEach((k,ki)=>{
+      cells += '<div style="display:flex; align-items:center; gap:6px;"><input id="tw_'+si+'_'+ki+'" type="number" step="1" value="'+s[k]+'" style="padding:5px 6px; border-radius:6px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; width:90px;"><span id="twl_'+si+'_'+ki+'" style="font-size:12px; font-weight:500; padding:2px 8px; border-radius:5px;"></span></div>';
+    });
+    g.innerHTML = cells;
+    box.appendChild(g);
+  });
+  box.querySelectorAll('input').forEach(el=>el.addEventListener('input', updateTW));
+  updateTW();
+}
+function updateTW(){
+  TW.forEach((s,si)=>{
+    ['d10','d30','d60'].forEach((k,ki)=>{
+      const v = parseFloat(document.getElementById('tw_'+si+'_'+ki).value)||0;
+      const l = document.getElementById('twl_'+si+'_'+ki);
+      if (v>=0){ l.textContent='加碼'; l.style.color='var(--kimi-color-positive)'; l.style.background=TINT[0]; }
+      else { l.textContent='撤逃'; l.style.color='var(--kimi-color-danger)'; l.style.background=TINT[2]; }
+    });
+  });
+}
+function render(){
+  const rows = document.getElementById('rows');
+  rows.innerHTML = '';
+  let curLayer = null;
+  IND.forEach((i)=>{
+    if (i.layer!==curLayer){
+      curLayer = i.layer;
+      const h = document.createElement('div');
+      h.style.cssText='font-size:12px; font-weight:500; color: var(--kimi-color-text-secondary); margin:12px 0 4px;';
+      h.textContent = '— ' + curLayer + ' —';
+      rows.appendChild(h);
+    }
+    const g = document.createElement('div');
+    g.style.cssText='display:grid; grid-template-columns:1.7fr .9fr .8fr .8fr 1fr; gap:8px; align-items:center; padding:8px 4px; border-bottom:1px solid var(--kimi-color-border);';
+    g.innerHTML =
+      '<div><div style="font-size:14px; font-weight:500;">'+i.name+'</div>'+
+      '<div style="font-size:12px; color: var(--kimi-color-text-tertiary);">'+i.freq+' · '+i.src+' · '+i.base+'</div></div>'+
+      '<input id="v_'+i.id+'" type="number" step="any" value="'+i.v+'" style="padding:6px 8px; border-radius:8px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; font-size:14px; width:100%;">'+
+      '<div style="display:flex; align-items:center; gap:4px;"><input id="r_'+i.id+'" type="number" step="any" value="'+i.red+'" style="padding:6px 4px; border-radius:8px; border:1px solid var(--kimi-color-border); background:transparent; color:var(--kimi-color-text-primary); font-variant-numeric:tabular-nums; font-size:13px; width:100%;"><span style="font-size:12px; color:var(--kimi-color-text-tertiary);">'+i.unit+'</span></div>'+
+      '<div style="font-size:12px; color: var(--kimi-color-text-tertiary); line-height:16px;">'+i.note+'</div>'+
+      '<div id="s_'+i.id+'" style="justify-self:end; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:500;"></div>';
+    rows.appendChild(g);
+    document.getElementById('v_'+i.id).addEventListener('input', update);
+    document.getElementById('r_'+i.id).addEventListener('input', function(){ i.red = parseFloat(this.value); update(); });
+  });
+  ['m_capex','m_vc','m_debt','m_gdp'].forEach(id=>document.getElementById(id).addEventListener('input', update));
+  update();
+}
+function updateMass(){
+  const c = parseFloat(document.getElementById('m_capex').value)||0;
+  const v = parseFloat(document.getElementById('m_vc').value)||0;
+  const d = parseFloat(document.getElementById('m_debt').value)||0;
+  const g = parseFloat(document.getElementById('m_gdp').value)||1;
+  const total = c+v+d;
+  document.getElementById('massOut').textContent = '≈ ' + (total/10000).toFixed(2) + ' 兆美元 / 年';
+  document.getElementById('massSub').textContent = '合計 ' + total.toLocaleString() + ' 億美元，約佔美國 GDP ' + (total/100/g).toFixed(1) + '%';
+}
+function update(){
+  updateMass();
+  let pen = 0;
+  IND.forEach(i=>{
+    const s = status(i);
+    pen += s===2 ? 1 : s===1 ? 0.5 : 0;
+    const el = document.getElementById('s_'+i.id);
+    el.textContent = LBL[s];
+    el.style.color = C[s];
+    el.style.background = TINT[s];
+  });
+  const score = Math.round(100 * (1 - pen/IND.length));
+  document.getElementById('scoreNum').textContent = score;
+  const bar = document.getElementById('scoreBar');
+  bar.style.width = score + '%';
+  const lbl = document.getElementById('scoreLbl');
+  if (score>=75){ bar.style.background='var(--kimi-color-positive)'; lbl.textContent='強勢擴張：資本持續湧入'; lbl.style.color='var(--kimi-color-positive)'; }
+  else if (score>=50){ bar.style.background='var(--kimi-color-positive)'; lbl.textContent='溫和擴張：結構仍健康，留意黃燈'; lbl.style.color='var(--kimi-color-text-primary)'; }
+  else if (score>=25){ bar.style.background='var(--kimi-color-warning)'; lbl.textContent='承壓：融資條件開始收緊'; lbl.style.color='var(--kimi-color-warning)'; }
+  else { bar.style.background='var(--kimi-color-danger)'; lbl.textContent='收縮：多重訊號惡化'; lbl.style.color='var(--kimi-color-danger)'; }
+  const layerStatus = {};
+  LAYERS.forEach(l=>{ layerStatus[l] = Math.max(...IND.filter(i=>i.layer===l).map(status)); });
+  const lc = document.getElementById('layers');
+  lc.innerHTML='';
+  LAYERS.forEach(l=>{
+    const s = layerStatus[l];
+    const chip = document.createElement('span');
+    chip.style.cssText='display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:6px; border:1px solid var(--kimi-color-border); font-size:13px;';
+    chip.innerHTML = '<span style="width:8px;height:8px;border-radius:4px;background:'+C[s]+';"></span>'+l+(KEY.includes(l)?' *':'');
+    lc.appendChild(chip);
+  });
+  document.getElementById('scoreLayer').textContent = '關鍵四層紅燈 ' + KEY.filter(l=>layerStatus[l]===2).length + '/4，全七層紅燈 ' + LAYERS.filter(l=>layerStatus[l]===2).length + '/7';
+  const keyRed = KEY.filter(l=>layerStatus[l]===2).length;
+  const vd = document.getElementById('verdict');
+  if (keyRed>=3){
+    vd.textContent = '判定：AI 流動性收縮（關鍵層級紅燈 '+keyRed+'/4）';
+    vd.style.color = 'var(--kimi-color-danger)'; vd.style.background = TINT[2];
+  } else if (keyRed>=1 || LAYERS.some(l=>layerStatus[l]===2)){
+    vd.textContent = '判定：部分層級承壓（關鍵層級紅燈 '+keyRed+'/4）';
+    vd.style.color = 'var(--kimi-color-warning)'; vd.style.background = TINT[1];
+  } else {
+    vd.textContent = '判定：資本持續湧入，尚未收縮';
+    vd.style.color = 'var(--kimi-color-positive)'; vd.style.background = TINT[0];
+  }
+}
+document.getElementById('reset').addEventListener('click', ()=>{
+  IND.forEach((i,idx)=>{ document.getElementById('v_'+i.id).value = START[idx]; });
+  TW.forEach((s,si)=>{ [s.d10,s.d30,s.d60].forEach((v,ki)=>{ document.getElementById('tw_'+si+'_'+ki).value = v; }); });
+  updateTW(); update();
+});
+renderTW();
+render();
+</script>
+
+</div>
+</body>
+</html>

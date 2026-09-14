@@ -1,0 +1,40 @@
+name: 每週更新台股外資買賣超
+
+on:
+  schedule:
+    # 每週五 21:23（台灣時間，UTC+8）= 13:23 UTC，盤後資料已公佈
+    - cron: '23 13 * * 5'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安裝 requests
+        run: pip install requests
+
+      - name: 抓取證交所資料並更新儀表板
+        env:
+          CI: true
+        run: python update_tw.py index.html tw_foreign_data.json
+
+      - name: 若有更新則 commit 並 push（Pages 會自動重新發布）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tw_foreign_data.json
+          if git diff --cached --quiet; then
+            echo "資料無變化，不需提交"
+          else
+            git commit -m "chore: 外資買賣超資料自動更新（$(date +%Y/%m/%d)）"
+            git push
+          fi
