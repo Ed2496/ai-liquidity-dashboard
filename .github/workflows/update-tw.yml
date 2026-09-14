@@ -28,6 +28,9 @@ jobs:
         run: python update_tw.py index.html tw_foreign_data.json
 
       - name: 抓取 FRED 資料並更新儀表板（美國指標）
+        # FRED 對 GitHub 雲端主機 IP 常有連線限制；此步失敗不影響台股更新，
+        # 美國指標改由本機排程（E:\liquidity-tool\本機更新美國指標並推送.bat）補上
+        continue-on-error: true
         env:
           CI: true
         run: python update_us.py index.html
