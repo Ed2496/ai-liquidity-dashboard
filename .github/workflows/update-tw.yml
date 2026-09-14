@@ -22,10 +22,15 @@ jobs:
       - name: 安裝 requests
         run: pip install requests
 
-      - name: 抓取證交所資料並更新儀表板
+      - name: 抓取證交所資料並更新儀表板（台股外資）
         env:
           CI: true
         run: python update_tw.py index.html tw_foreign_data.json
+
+      - name: 抓取 FRED 資料並更新儀表板（美國指標）
+        env:
+          CI: true
+        run: python update_us.py index.html
 
       - name: 若有更新則 commit 並 push（Pages 會自動重新發布）
         run: |
