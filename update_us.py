@@ -22,8 +22,17 @@ def fred_series(sid, days=120):
     start = end - timedelta(days=days)
     url = (f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}"
            f"&cosd={start.isoformat()}&coed={end.isoformat()}")
-    r = requests.get(url, headers=UA, timeout=30)
-    r.raise_for_status()
+    r = None
+    for attempt in range(4):  # 雲端主機偶發逾時，重試 3 次
+        try:
+            r = requests.get(url, headers=UA, timeout=60)
+            r.raise_for_status()
+            break
+        except Exception as e:
+            print(f"  {sid} 第 {attempt + 1} 次抓取失敗: {e}")
+            r = None
+    if r is None:
+        raise RuntimeError(f"FRED {sid} 多次重試仍失敗")
     out = {}
     for line in r.text.strip().splitlines()[1:]:
         ds, _, val = line.partition(",")
