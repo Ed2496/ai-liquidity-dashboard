@@ -61,7 +61,7 @@ input { font-family: inherit; }
 
 <div style="border:1px solid var(--kimi-color-border); border-radius:12px; padding:12px; margin-bottom:14px;">
   <div style="font-size:13px; font-weight:500; margin-bottom:4px;">台灣 AI 指標股｜外資買賣超（張，+ 加碼 / − 撤逃）</div>
-  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/09/11（證交所官方三大法人日報自動更新；10/30/60日外資買賣超，單位：張）</div>
+  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/09/15（證交所官方三大法人日報自動更新；10/30/60日外資買賣超，單位：張）</div>
   <div id="twrows"></div>
 </div>
 
@@ -90,21 +90,21 @@ const IND = [
  {id:'capex',name:'Hyperscaler CapEx 指引同比', layer:'運用', freq:'季', src:'10-Q/10-K', base:'2026 指引 ≈ 7,250 億（+77%）', v:35, red:20, yellow:30, dir:'below', unit:'%', note:'紅：增速 < +20%'},
  {id:'ocf',  name:'Capex / OCF 比率', layer:'造血', freq:'季', src:'SEC / FRED', base:'歷史高位區', v:75, red:80, yellow:75, dir:'above', unit:'%', note:'紅：升破 80% 且續升'},
  {id:'fcf',  name:'負自由現金流巨頭家數', layer:'造血', freq:'季', src:'10-Q', base:'目前均為正', v:0, red:1, yellow:1, dir:'above', unit:'家', note:'紅：任一巨頭 FCF 轉負'},
- {id:'spread',name:'科技巨頭債利差（AA 指數代理）', layer:'輸血', freq:'週', src:'FRED BAMLC0A2CAA', base:'ICE BofA AA 公司債 OAS', v:59.0, red:130, yellow:90, dir:'above', unit:'bp', note:'紅：> 130bp 且 CDS 同步走升（ICE BofA AA 指數代理，FRED 自動更新 2026/09/11）'},
+ {id:'spread',name:'科技巨頭債利差（AA 指數代理）', layer:'輸血', freq:'週', src:'FRED BAMLC0A2CAA', base:'ICE BofA AA 公司債 OAS', v:60.0, red:130, yellow:90, dir:'above', unit:'bp', note:'紅：> 130bp 且 CDS 同步走升（ICE BofA AA 指數代理，FRED 自動更新 2026/09/15）'},
  {id:'offbs',name:'表外負債年增率', layer:'輸血', freq:'季', src:'10-K 附註', base:'租賃/採購承諾', v:45, red:50, yellow:30, dir:'above', unit:'%', note:'紅：年增 > 50%'},
  {id:'gpu',  name:'GPU 租賃價格月變動', layer:'落地', freq:'週', src:'現貨報價', base:'高階卡供給緊', v:-2, red:-10, yellow:-5, dir:'below', unit:'%', note:'紅：連月下跌且 < −10%'},
  {id:'inv',  name:'伺服器 ODM 庫存天數變動', layer:'落地', freq:'季', src:'財報', base:'Backlog 仍長', v:3, red:15, yellow:8, dir:'above', unit:'天', note:'紅：急升 +15 天且 Backlog 縮'},
  {id:'dc',   name:'資料中心開工金額季變動', layer:'落地', freq:'季', src:'CBRE / Dgtl Infra', base:'電力供給為瓶頸', v:6, red:0, yellow:2, dir:'below', unit:'%', note:'紅：停滯 < 0%（CapEx 升但開工停）'},
  {id:'exit', name:'AI IPO/M&A 退出季金額', layer:'循環', freq:'季', src:'PitchBook Exit', base:'2025H1 僅 11 家 IPO', v:85, red:30, yellow:55, dir:'below', unit:'億美元', note:'紅：連續萎縮 < 30 億'},
- {id:'liq',  name:'Fed 淨流動性 4 週變動', layer:'宏觀', freq:'週', src:'FRED', base:'資產負債表 −TGA −ON RRP', v:1.0, red:-2, yellow:-0.5, dir:'below', unit:'%', note:'紅：連續收縮 < −2%（FRED 自動更新 2026/09/11）'}
+ {id:'liq',  name:'Fed 淨流動性 4 週變動', layer:'宏觀', freq:'週', src:'FRED', base:'資產負債表 −TGA −ON RRP', v:1.0, red:-2, yellow:-0.5, dir:'below', unit:'%', note:'紅：連續收縮 < −2%（FRED 自動更新 2026/09/15）'}
 ];
 const LAYERS = ['來源','運用','造血','輸血','落地','循環','宏觀'];
 const KEY = ['來源','輸血','造血','落地'];
 const START = IND.map(i=>i.v);
 const TW = [
- {n:'台積電 2330', d10:-1008, d30:3191, d60:-173766, warn:'官方證交所資料 2026/09/11 更新，60日窗完整'},
- {n:'聯發科 2454', d10:2934, d30:14640, d60:3354, warn:'官方證交所資料 2026/09/11 更新，60日窗完整'},
- {n:'台達電 2308', d10:-15676, d30:-22717, d60:-63231, warn:'官方證交所資料 2026/09/11 更新，60日窗完整'}
+ {n:'台積電 2330', d10:-17603, d30:9920, d60:-211060, warn:'官方證交所資料 2026/09/15 更新，60日窗完整'},
+ {n:'聯發科 2454', d10:3621, d30:13830, d60:-2218, warn:'官方證交所資料 2026/09/15 更新，60日窗完整'},
+ {n:'台達電 2308', d10:-13294, d30:-20809, d60:-62217, warn:'官方證交所資料 2026/09/15 更新，60日窗完整'}
 ];
 function status(i){
   const v = parseFloat(document.getElementById('v_'+i.id).value);
