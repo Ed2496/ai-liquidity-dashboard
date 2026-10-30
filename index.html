@@ -61,7 +61,7 @@ input { font-family: inherit; }
 
 <div style="border:1px solid var(--kimi-color-border); border-radius:12px; padding:12px; margin-bottom:14px;">
   <div style="font-size:13px; font-weight:500; margin-bottom:4px;">台灣 AI 指標股｜外資買賣超（張，+ 加碼 / − 撤逃）</div>
-  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/10/22（證交所官方三大法人日報自動更新；10/30/60日外資買賣超，單位：張）</div>
+  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/10/29（證交所官方三大法人日報自動更新；10/30/60日外資買賣超，單位：張）</div>
   <div id="twrows"></div>
 </div>
 
@@ -103,9 +103,9 @@ const LAYERS = ['來源','運用','造血','輸血','落地','循環','宏觀'];
 const KEY = ['來源','輸血','造血','落地'];
 const START = IND.map(i=>i.v);
 const TW = [
- {n:'台積電 2330', d10:-148325, d30:-167017, d60:-172616, warn:'官方證交所資料 2026/10/22 更新，60日窗完整'},
- {n:'聯發科 2454', d10:-25121, d30:-27776, d60:-19775, warn:'官方證交所資料 2026/10/22 更新，60日窗完整'},
- {n:'台達電 2308', d10:-33140, d30:-39551, d60:-63755, warn:'官方證交所資料 2026/10/22 更新，60日窗完整'}
+ {n:'台積電 2330', d10:-105761, d30:-172815, d60:-147592, warn:'官方證交所資料 2026/10/29 更新，60日窗完整'},
+ {n:'聯發科 2454', d10:-22042, d30:-34065, d60:-20023, warn:'官方證交所資料 2026/10/29 更新，60日窗完整'},
+ {n:'台達電 2308', d10:-30043, d30:-36766, d60:-62015, warn:'官方證交所資料 2026/10/29 更新，60日窗完整'}
 ];
 function status(i){
   const v = parseFloat(document.getElementById('v_'+i.id).value);
