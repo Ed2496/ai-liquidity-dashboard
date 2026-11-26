@@ -61,7 +61,7 @@ input { font-family: inherit; }
 
 <div style="border:1px solid var(--kimi-color-border); border-radius:12px; padding:12px; margin-bottom:14px;">
   <div style="font-size:13px; font-weight:500; margin-bottom:4px;">台灣 AI 指標股｜外資買賣超（張，+ 加碼 / − 撤逃）</div>
-  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/11/19（證交所官方三大法人日報自動更新；10/30/60日外資買賣超，單位：張）</div>
+  <div style="font-size:12px; color:var(--kimi-color-text-tertiary); margin-bottom:8px;">資料截至 2026/11/26（證交所官方三大法人日報自動更新；10/30/60日外資買賣超，單位：張）</div>
   <div id="twrows"></div>
 </div>
 
@@ -86,26 +86,26 @@ input { font-family: inherit; }
 <script>
 const IND = [
  {id:'vc',   name:'美國 AI VC 季融資額季增率', layer:'來源', freq:'季', src:'Crunchbase 2026/11（手動）', base:'基準 2025：1,940 億美元/年', v:-30, red:-5,  yellow:0,  dir:'below', unit:'%', note:'紅：季增 ≤ −5%｜Q3 全球 AI 募資 1,020 億，季減約 30%，巨額輪暫停（OpenAI 新輪僅認 110 億）'},
- {id:'llm',  name:'頭部模型公司單季募資', layer:'來源', freq:'月', src:'彭博/TechCrunch 2026/11（手動）', base:'OpenAI/Anthropic/xAI 合計', v:690, red:100, yellow:200, dir:'below', unit:'億美元', note:'紅：單季 < 100 億｜OpenAI 首關 110 億（11/6，估值 1.25 兆）＋Anthropic IPO 578–643 億（11/10 定價，11/19 掛牌 ANT）'},
+ {id:'llm',  name:'頭部模型公司單季募資', layer:'來源', freq:'月', src:'彭博/TechCrunch 2026/11（手動）', base:'OpenAI/Anthropic/xAI 合計', v:1183, red:100, yellow:200, dir:'below', unit:'億美元', note:'紅：單季 < 100 億｜Anthropic IPO 1,073 億（11/19 掛牌，公開 813＋私募 260，史上最大）＋OpenAI 首關 110 億（11/6，估值 1.25 兆）'},
  {id:'capex',name:'Hyperscaler CapEx 指引同比', layer:'運用', freq:'季', src:'Q3 季報 2026/10（手動）', base:'四巨頭 2026 指引 7,200–7,400 億', v:85, red:20, yellow:30, dir:'below', unit:'%', note:'紅：增速 < +20%｜Q3 實際季增 +107%；MSFT 微降至 1,700 億，其餘三家上修或持平'},
  {id:'ocf',  name:'Capex / OCF 比率', layer:'造血', freq:'季', src:'Q3 季報 2026/10（手動）', base:'歷史高位區', v:105, red:80, yellow:75, dir:'above', unit:'%', note:'紅：升破 80%｜Alphabet 121%（51.4/42.3）、Meta 106%（34.9/32.8），已雙雙破紅線'},
  {id:'fcf',  name:'負自由現金流巨頭家數', layer:'造血', freq:'季', src:'Q3 季報 2026/10（手動）', base:'四巨頭中 2 家轉負', v:2, red:1, yellow:1, dir:'above', unit:'家', note:'紅：任一巨頭 FCF 轉負｜Alphabet 連兩季負 FCF、Meta Q3 -21 億；Alphabet 靠債券/可轉債/發股補缺口'},
- {id:'spread',name:'科技巨頭債利差（AA 指數代理）', layer:'輸血', freq:'週', src:'FRED BAMLC0A2CAA', base:'ICE BofA AA 公司債 OAS', v:67.0, red:130, yellow:90, dir:'above', unit:'bp', note:'紅：> 130bp 且 CDS 同步走升（ICE BofA AA 指數代理，FRED 自動更新 2026/11/19）'},
+ {id:'spread',name:'科技巨頭債利差（AA 指數代理）', layer:'輸血', freq:'週', src:'FRED BAMLC0A2CAA', base:'ICE BofA AA 公司債 OAS', v:71.0, red:130, yellow:90, dir:'above', unit:'bp', note:'紅：> 130bp 且 CDS 同步走升（ICE BofA AA 指數代理，FRED 自動更新 2026/11/25）'},
  {id:'offbs',name:'表外負債年增率', layer:'輸血', freq:'季', src:'10-K 附註', base:'租賃/採購承諾', v:45, red:50, yellow:30, dir:'above', unit:'%', note:'紅：年增 > 50%'},
- {id:'aidebt',name:'AI 芯片債務融資規模', layer:'輸血', freq:'季', src:'彭博 2026/10/2（手動）', base:'博通銀團 600 億：美銀/花旗/大摩 420 億優先擔保 + 黑石 180 億次級', v:600, red:100, yellow:300, dir:'below', unit:'億美元', note:'紅：單季新增 < 100 億（信用收縮）；部分債務可轉 Anthropic 股權，其 5 年 1,252 億 TPU 租約約 1/3 由博通貸款覆蓋'},
- {id:'gpu',  name:'GPU 租賃價格月變動', layer:'落地', freq:'週', src:'Silicon Data/BofA 2026/11（手動）', base:'高階卡供給緊', v:5, red:-10, yellow:-5, dir:'below', unit:'%', note:'紅：連月下跌且 < −10%｜H100 月漲 5.3%、BofA：B200 租金年初至今 +47% 創新高；Nebius 10/1 全面調漲 17–20%'},
+ {id:'aidebt',name:'AI 芯片債務融資規模', layer:'輸血', freq:'季', src:'彭博/SEC 2026/11（手動）', base:'博通銀團 600 億＋Oracle 債 100 億', v:700, red:100, yellow:300, dir:'below', unit:'億美元', note:'紅：單季新增 < 100 億（信用收縮）｜博通銀團 600 億（10/2，部分可轉 Anthropic 股權）＋Oracle 100 億美元債（11/4 結案，宣稱 OpenAI 合約已完全融資）'},
+ {id:'gpu',  name:'GPU 租賃價格月變動', layer:'落地', freq:'週', src:'Ornn/MacKay 2026/11（手動）', base:'高階卡供給緊', v:-4, red:-10, yellow:-5, dir:'below', unit:'%', note:'紅：連月下跌且 < −10%｜30 日：H100 -7.6%、B200 -5.3%、B300 +1.5%（Ornn 11/22）高檔回落；年初至今仍 +30%，2028 產能已被預訂'},
  {id:'inv',  name:'伺服器 ODM 庫存天數變動', layer:'落地', freq:'季', src:'財報', base:'Backlog 仍長', v:3, red:15, yellow:8, dir:'above', unit:'天', note:'紅：急升 +15 天且 Backlog 縮'},
  {id:'dc',   name:'資料中心開工金額季變動', layer:'落地', freq:'季', src:'CBRE / Dgtl Infra', base:'電力供給為瓶頸', v:6, red:0, yellow:2, dir:'below', unit:'%', note:'紅：停滯 < 0%（CapEx 升但開工停）'},
- {id:'exit', name:'AI IPO/M&A 退出季金額', layer:'循環', freq:'季', src:'TechCrunch/CNBC 2026/11（手動）', base:'Anthropic IPO 定價 11/10', v:580, red:30, yellow:55, dir:'below', unit:'億美元', note:'紅：連續萎縮 < 30 億｜Anthropic IPO 578–643 億（70–78 美元/股，11/19 掛牌，隐含估值最高 1.4 兆）'},
- {id:'liq',  name:'Fed 淨流動性 4 週變動', layer:'宏觀', freq:'週', src:'FRED', base:'資產負債表 −TGA −ON RRP', v:0.4, red:-2, yellow:-0.5, dir:'below', unit:'%', note:'紅：連續收縮 < −2%（FRED 自動更新 2026/11/19）'}
+ {id:'exit', name:'AI IPO/M&A 退出季金額', layer:'循環', freq:'季', src:'Yahoo/Investopedia 2026/11（手動）', base:'Anthropic IPO 11/19 掛牌', v:1073, red:30, yellow:55, dir:'below', unit:'億美元', note:'紅：連續萎縮 < 30 億｜Anthropic IPO 1,073 億創史上最大，但首日收 97.17 後 11/24 破發、現約 82–84（自高點 -30%，市值剩約 1.09 兆）'},
+ {id:'liq',  name:'Fed 淨流動性 4 週變動', layer:'宏觀', freq:'週', src:'FRED', base:'資產負債表 −TGA −ON RRP', v:1.4, red:-2, yellow:-0.5, dir:'below', unit:'%', note:'紅：連續收縮 < −2%（FRED 自動更新 2026/11/25）'}
 ];
 const LAYERS = ['來源','運用','造血','輸血','落地','循環','宏觀'];
 const KEY = ['來源','輸血','造血','落地'];
 const START = IND.map(i=>i.v);
 const TW = [
- {n:'台積電 2330', d10:-87481, d30:-310641, d60:-304489, warn:'官方證交所資料 2026/11/19 更新，60日窗完整'},
- {n:'聯發科 2454', d10:-12334, d30:-66940, d60:-58380, warn:'官方證交所資料 2026/11/19 更新，60日窗完整'},
- {n:'台達電 2308', d10:-19984, d30:-79815, d60:-88163, warn:'官方證交所資料 2026/11/19 更新，60日窗完整'}
+ {n:'台積電 2330', d10:-121884, d30:-332545, d60:-389323, warn:'官方證交所資料 2026/11/26 更新，60日窗完整'},
+ {n:'聯發科 2454', d10:-11518, d30:-59151, d60:-66402, warn:'官方證交所資料 2026/11/26 更新，60日窗完整'},
+ {n:'台達電 2308', d10:-19341, d30:-79717, d60:-97379, warn:'官方證交所資料 2026/11/26 更新，60日窗完整'}
 ];
 function status(i){
   const v = parseFloat(document.getElementById('v_'+i.id).value);
